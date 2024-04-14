@@ -1,25 +1,29 @@
 const loginRoute = require('express').Router();
 const bcrypt = require('bcrypt');
+const JWT = require('jsonwebtoken');
 
 const { User } = require('../../../db/models');
+
+function generateToken(id, email) {
+  return JWT.sign({
+    id, email,
+  }, process.env.JWT_SECRET, { expiresIn: '24h' });
+}
 
 loginRoute.post('/', async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ where: { email } });
     if (!user) {
-      res.json({ err: `${email} не зарегистрирован..` });
+      res.json({ message: `${email} не зарегистрирован..` });
     } else {
       const checkPass = await bcrypt.compare(password, user.password);
       if (checkPass) {
-        req.session.email = user.email;
-        req.session.userid = user.id;
-        req.session.save(() => {
-          console.log('Session saved!!!');
-          res.json({ msg: 'Добро пожаловать!', user });
-        });
+        const token = generateToken(user.email, user.id);
+      res.json({token, message: 'Вы успешно авторизовались' })
+      return
       } else {
-        res.json({ err: 'Неверный пароль' }); 
+        res.json({ message: 'Неверный пароль' }); 
       }
     }
   } catch (error) {
