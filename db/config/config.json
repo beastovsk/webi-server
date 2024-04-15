@@ -1,23 +1,11 @@
 {
 	"development": {
-		"username": "ecom_db_iyc0_user",
-		"password": "SHM77YmJ9Q004uwFUVjbjTUy5TVvLCld",
-		"database": "ecom_db_iyc0",
-		"host": "dpg-coelah6n7f5s73cmi0fg-a",
-		"dialect": "postgres"
+		"use_env_variable": "DB"
 	},
 	"test": {
-		"username": "root",
-		"password": null,
-		"database": "database_test",
-		"host": "127.0.0.1",
-		"dialect": "mysql"
+		"use_env_variable": "DB"
 	},
 	"production": {
-		"username": "root",
-		"password": null,
-		"database": "database_production",
-		"host": "127.0.0.1",
-		"dialect": "mysql"
+		"use_env_variable": "DB"
 	}
 }
