@@ -10,8 +10,8 @@
     "seed": "npx sequelize db:seed:all",
     "createDB": "npx sequelize db:create",
     "dropDB": "npx sequelize db:drop",
-    "start": "node src/app.js",
-    "dev": "nodemon src/app.js --ignore sessions --ext js,jsx"
+    "start": "node index.js",
+    "dev": "nodemon index.js --ignore sessions --ext js,jsx"
   },
   "keywords": [],
   "author": "",
