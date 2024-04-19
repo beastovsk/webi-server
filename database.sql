@@ -1,4 +1,4 @@
-CREATE TABLE "User" (
+CREATE TABLE "user" (
     id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
@@ -6,9 +6,9 @@ CREATE TABLE "User" (
     subscription_expire_date DATE
 );
 
-CREATE TABLE "Product" (
+CREATE TABLE "product" (
     id SERIAL PRIMARY KEY,
-    shop_id INTEGER REFERENCES Shop(id),
+    shop_id INTEGER REFERENCES shop(id),
     title VARCHAR(255) NOT NULL,
     price NUMERIC(10, 2) NOT NULL,
     stock INTEGER,
@@ -18,10 +18,10 @@ CREATE TABLE "Product" (
     weight NUMERIC(10, 2)
 );
 
-CREATE TABLE "Order" (
+CREATE TABLE "order" (
     id SERIAL PRIMARY KEY,
-    shop_id INTEGER REFERENCES Shop(id),
-    user_id INTEGER REFERENCES "User"(id),
+    shop_id INTEGER REFERENCES shop(id),
+    user_id INTEGER REFERENCES "user"(id),
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(20) NOT NULL,
     email VARCHAR(255) NOT NULL,
@@ -29,10 +29,10 @@ CREATE TABLE "Order" (
 );
 
 
-CREATE TABLE "Shop" (
+CREATE TABLE "shop" (
     id SERIAL PRIMARY KEY,
     shop_name VARCHAR(100) NOT NULL,
-    user_id INTEGER REFERENCES "User"(id),
+    user_id INTEGER REFERENCES "user"(id),
     address TEXT,
     contact_email VARCHAR(255),
     contact_phone VARCHAR(20),
