@@ -1,52 +1,62 @@
-const User = require("../db/models/user");
+const db = require("../database");
 const bcrypt = require("bcryptjs");
-const {generateToken} = require("../utils");
-
-const express = require("express")
-const router = express.Router()
+const { generateToken } = require("../utils");
 
 const authController = {
-    login: async (req, res) => {
-        try {
-            const { email, password } = req.body;
-            const user = await User.findOne({ where: { email } });
-            const token = generateToken(user.email, user.id);
-            const checkPass = await bcrypt.compare(password, user.password);
+  login: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const user = await db.query('SELECT * FROM "User" WHERE email = $1', [
+        email,
+      ]);
 
-            if (user) {
-                res.json({ message: "Пользователь не найден" });
-                return;
-            }
-            if (!checkPass) {
-                res.json({ message: 'Неверный пароль' });
-                return;
-            }
-            res.json({token: 'asdasd', message: 'Вы успешно авторизовались' })
-        } catch (error) {
-            res.json({ error: error.message });
-        }
-    },
-    register: async (req, res) => {
-        try {
-            const { email, password } = req.body;
-            const user = await User.findOne({ where: { email } });
-            const hash = await bcrypt.hash(password, 10);
-            const token = generateToken( {id:crypto.randomUUID(), email });
+      if (user.rows.length === 0) {
+        return res.status(400).json({ message: "Пользователь не найден" });
+      }
 
-            if (user) {
-                res.json({
-                    message: `Этот пользователь уже зарегистрирован`,
-                });
+      const checkPass = await bcrypt.compare(password, user.rows[0].password);
+      if (!checkPass) {
+        return res.status(400).json({ message: "Неверный пароль" });
+      }
 
-                return
-            }
-            await User.create({ email, password: hash });
-            res.json({token, message: 'Вы успешно зарегистрировались' })
-
-        } catch (error) {
-            res.json({ error: error.message });
-        }
+      const token = generateToken({
+        id: user.rows[0].id,
+        email: user.rows[0].email,
+      });
+      res.json({ token, message: "Вы успешно авторизовались" });
+    } catch (error) {
+      res.status(500).json({ error: "Ошибка авторизации" });
     }
-}
+  },
+  register: async (req, res) => {
+    try {
+      const { email, password } = req.body;
+      const existingUser = await db.query(
+        'SELECT * FROM "User" WHERE email = $1',
+        [email]
+      );
 
-module.exports = authController
+      if (existingUser.rows.length > 0) {
+        return res
+          .status(400)
+          .json({ message: "Этот пользователь уже зарегистрирован" });
+      }
+
+      const hash = await bcrypt.hash(password, 10);
+      const newUser = await db.query(
+        'INSERT INTO "User" (email, password) VALUES ($1, $2) RETURNING id, email',
+        [email, hash]
+      );
+
+      const token = generateToken({
+        id: newUser.rows[0].id,
+        email: newUser.rows[0].email,
+      });
+      res.json({ token, message: "Вы успешно зарегистрировались" });
+    } catch (error) {
+      res.status(500).json({ error: "Ошибка регистрации" });
+    }
+  },
+};
+
+module.exports = authController;
