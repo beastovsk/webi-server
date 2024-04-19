@@ -1,5 +1,4 @@
 const db = require("../database");
-console.log(db);
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../utils");
 
@@ -12,12 +11,12 @@ const authController = {
       ]);
 
       if (user.rows.length === 0) {
-        return res.status(404).json({ message: "Пользователь не найден" });
+        return res.status(400).json({ message: "Пользователь не найден" });
       }
 
       const checkPass = await bcrypt.compare(password, user.rows[0].password);
       if (!checkPass) {
-        return res.status(401).json({ message: "Неверный пароль" });
+        return res.status(400).json({ message: "Неверный пароль" });
       }
 
       const token = generateToken({
@@ -26,7 +25,6 @@ const authController = {
       });
       res.json({ token, message: "Вы успешно авторизовались" });
     } catch (error) {
-      console.error("Error logging in:", error);
       res.status(500).json({ error: "Ошибка авторизации" });
     }
   },
@@ -56,7 +54,6 @@ const authController = {
       });
       res.json({ token, message: "Вы успешно зарегистрировались" });
     } catch (error) {
-      console.error("Error registering user:", error);
       res.status(500).json({ error: "Ошибка регистрации" });
     }
   },
