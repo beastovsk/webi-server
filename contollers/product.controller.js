@@ -89,7 +89,7 @@ const productController = {
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
-	getProduct: async (req, res) => {
+	getProductById: async (req, res) => {
 		try {
 			const {productId, shopId} =  req.body;
 			const [_, token] = req.headers.authorization.split(" ");
