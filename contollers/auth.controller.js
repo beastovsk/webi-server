@@ -1,6 +1,16 @@
 const db = require("../database");
 const bcrypt = require("bcryptjs");
 const { generateToken } = require("../utils");
+const nodemailer = require('nodemailer');
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: 'coctencoflez@gmail.com',
+        pass: 'izjn njvi cxap muvc'
+    }
+});
+
 
 const authController = {
 	login: async (req, res) => {
@@ -41,27 +51,40 @@ const authController = {
 				`SELECT * FROM "user" WHERE email = $1`,
 				[email]
 			);
-
+	
 			if (existingUser && existingUser.rows.length > 0) {
 				return res
 					.status(400)
 					.json({ message: "Этот пользователь уже зарегистрирован" });
 			}
-
+	
 			const hash = await bcrypt.hash(password, 10);
 			const newUser = await db.query(
 				`INSERT INTO "user" (email, password) VALUES ($1, $2) RETURNING id, email`,
 				[email, hash]
 			);
-
+	
 			const token = generateToken({
 				id: newUser.rows[0].id,
 				email: newUser.rows[0].email,
 			});
-
-			res.json({
-				token,
-				message: "Вы успешно зарегистрировались",
+	
+			const mailOptions = {
+				from: 'coctencoflez@gmail.com',
+				to: email,
+				subject: 'Подтверждение регистрации',
+				text: `Поздравляем с успешной регистрацией! Перейдите по ссылке, чтобы подтвердить свою учетную запись: http://ваш_сайт/confirm/${token}`
+			};
+	
+			transporter.sendMail(mailOptions, (error, info) => {
+				if (error) {
+					res.status(500).json({ error: "Ошибка отправки электронной почты" });
+				} else {
+					res.json({
+						token,
+						message: "Подтверждение регистрации отправлено на вашу почту",
+					});
+				}
 			});
 		} catch (error) {
 			res.status(500).json({ error: "Ошибка регистрации" });
