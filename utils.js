@@ -11,9 +11,8 @@ const generateToken = ({ id, email }) => {
 	);
 };
 
-const decodeToken = ({token}) => {
-	return JWT.verify(token,  process.env.JWT_SECRET)
-}
+const decodeToken = ({ token }) => {
+	return JWT.verify(token, process.env.JWT_SECRET);
+};
 
-
-module.exports = {generateToken, decodeToken};
+module.exports = { generateToken, decodeToken };
