@@ -91,7 +91,7 @@ const productController = {
 	},
 	getProductById: async (req, res) => {
 		try {
-			const {productId, shopId} =  req.body;
+			const {productId, shopId} =  req.request;
 			const [_, token] = req.headers.authorization.split(" ");
 			const {email} = decodeToken({token})
 
@@ -132,7 +132,7 @@ const productController = {
 	},
 	getAllProducts: async (req, res) => {
 		try {
-			const { shopId } =  req.body;
+			const { shopId } =  req.request;
 			const [_, token] = req.headers.authorization.split(" ");
 			const {email} = decodeToken({token})
 

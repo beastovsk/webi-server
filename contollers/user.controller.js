@@ -7,7 +7,7 @@ const userController = {
 		try {
 			// Get token, sliced "Bearer" label
 			const [_, token] = req.headers.authorization.split(" ");
-			const {email, id} = decodeToken({token})
+			const { email } = decodeToken({ token });
 
 			const result = await db.query(
 				`SELECT * FROM "user" WHERE email = $1`,
@@ -20,7 +20,7 @@ const userController = {
 					.json({ message: "Пользователь не найден" });
 			}
 
-			const user = result.rows[0]
+			const user = result.rows[0];
 
 			res.json(user);
 		} catch (error) {
@@ -29,12 +29,14 @@ const userController = {
 	},
 	changeEmail: async (req, res) => {
 		try {
-			const {currentEmail, newEmail, password} = req.body;
+			const { currentEmail, newEmail, password } = req.body;
 			const [_, token] = req.headers.authorization.split(" ");
-			const {email: decodedEmail, id} = decodeToken({token})
+			const { email: decodedEmail } = decodeToken({ token });
 
 			if (decodedEmail !== currentEmail) {
-				return res.status(400).json({message: "Некорректная текущая почта"})
+				return res
+					.status(400)
+					.json({ message: "Некорректная текущая почта" });
 			}
 
 			const result = await db.query(
@@ -48,16 +50,24 @@ const userController = {
 					.json({ message: "Пользователь не найден" });
 			}
 
-			const [user] = result.rows
+			const [user] = result.rows;
 
-			bcrypt.compare(password, user.password, (err, isSamePasswords, next) => {
-				if (!isSamePasswords) {
-					return res.status(400).json({message: "Некорректный пароль"})
+			bcrypt.compare(
+				password,
+				user.password,
+				(err, isSamePasswords, next) => {
+					if (!isSamePasswords) {
+						return res
+							.status(400)
+							.json({ message: "Некорректный пароль" });
+					}
 				}
+			);
 
-			})
-
-			db.query(`UPDATE "user" SET email = $1 WHERE email = $2`, [newEmail, currentEmail])
+			db.query(`UPDATE "user" SET email = $1 WHERE email = $2`, [
+				newEmail,
+				currentEmail,
+			]);
 
 			const updatedToken = generateToken({
 				id: user.id,
@@ -74,9 +84,9 @@ const userController = {
 	},
 	changePassword: async (req, res) => {
 		try {
-			const {currentPassword, password} = req.body;
+			const { currentPassword, password } = req.body;
 			const [_, token] = req.headers.authorization.split(" ");
-			const {email, id} = decodeToken({token})
+			const { email, id } = decodeToken({ token });
 
 			const result = await db.query(
 				`SELECT * FROM "user" WHERE email = $1`,
@@ -89,17 +99,26 @@ const userController = {
 					.json({ message: "Пользователь не найден" });
 			}
 
-			const [user] = result.rows
+			const [user] = result.rows;
 
-			bcrypt.compare(currentPassword, user.password, (err, isSamePasswords) => {
-				if (!isSamePasswords) {
-					return res.status(400).json({message: "Некорректный пароль"})
+			bcrypt.compare(
+				currentPassword,
+				user.password,
+				(err, isSamePasswords) => {
+					if (!isSamePasswords) {
+						return res
+							.status(400)
+							.json({ message: "Некорректный пароль" });
+					}
 				}
-			})
+			);
 
-			const hashedPassword = bcrypt.hash(password, 10)
+			const hashedPassword = bcrypt.hash(password, 10);
 
-			await db.query(`UPDATE "user" SET password = $1 WHERE email = $2`, [hashedPassword, email])
+			await db.query(`UPDATE "user" SET password = $1 WHERE email = $2`, [
+				hashedPassword,
+				email,
+			]);
 
 			res.json({
 				message: "Пароль успешно изменен",
