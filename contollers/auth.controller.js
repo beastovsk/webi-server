@@ -77,7 +77,7 @@ const authController = {
 				from: "coctencoflez@gmail.com",
 				to: email,
 				subject: "Подтверждение регистрации",
-				text: `Поздравляем с успешной регистрацией! Перейдите по ссылке, чтобы подтвердить свою учетную запись: http://ваш_сайт/confirm/${confirmToken}`,
+				text: `Поздравляем с успешной регистрацией! Перейдите по ссылке, чтобы подтвердить свою учетную запись: http://localhost:3000/confirm/${confirmToken}`,
 			};
 
 			transporter.sendMail(mailOptions, (error, info) => {
@@ -99,7 +99,7 @@ const authController = {
 	},
 	confirmEmail: async (req, res) => {
 		try {
-			const { confirm } = req.body;
+			const { confirmCode } = req.body;
 			const [_, token] = await req.headers.authorization.split(" ");
 			const { email } = await decodeToken({ token });
 
@@ -122,13 +122,17 @@ const authController = {
 					.json({ message: "Почта уже подтверждена" });
 			}
 
-			if (confirm === user.confirm_token) {
-				await db.query(
-					`UPDATE "user" SET is_valid = $2 WHERE email = $1`,
-					[email, true]
-				);
-				return res.json({ message: "Почта успешно подтверждена" });
+			if (confirmCode != user.confirm_token) {
+				return res.status(400).json({
+					message: "Неверный код подтверждения",
+				});
 			}
+
+			await db.query(`UPDATE "user" SET is_valid = $2 WHERE email = $1`, [
+				email,
+				true,
+			]);
+			return res.json({ message: "Почта подтверждена" });
 		} catch (error) {
 			res.status(500).json({ error: "Ошибка подтверждения" });
 		}

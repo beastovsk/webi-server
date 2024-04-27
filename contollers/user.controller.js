@@ -22,7 +22,7 @@ const userController = {
 
 			const user = result.rows[0];
 
-			res.json(user);
+			res.json({ user });
 		} catch (error) {
 			res.status(500).json({ error: "Ошибка авторизации" });
 		}
