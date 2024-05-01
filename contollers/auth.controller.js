@@ -70,17 +70,30 @@ const authController = {
 			}
 
 			const hash = await bcrypt.hash(password, 10);
-			const confirmToken = v4(); // Создание уникального кода подтверждения
+			const confirmToken = v4().split("-")[0]; // Создание уникального кода подтверждения
 
-			const newUser = await db.query(
+			await db.query(
 				`INSERT INTO "user" (email, password, is_confirmed, confirm_token) VALUES ($1, $2, $3, $4) RETURNING id, email`,
 				[email, hash, 0, confirmToken]
 			);
+
+			const mailBody = `
+				<div>
+					<h1 style='color: #6f4ff2'>WEBI Marketplace</h1>
+					<h2>
+						Ваш <i style='color: #6f4ff2'>код</i> для подтверждения почты:</h2>
+					<br/> 
+					<h3>
+						<b style='color: #6f4ff2' class='token'>${confirmToken}</b>
+					</h3>
+				</div>
+			`;
+
 			const mailOptions = {
-				from: "coctencoflez@gmail.com",
+				from: "Webi",
 				to: email,
-				subject: "Подтверждение регистрации",
-				text: `Ваедите код для подтверждения своей почты: ${confirmToken}`,
+				html: mailBody,
+				subject: "Подтверждение почты",
 			};
 
 			transporter.sendMail(mailOptions, (error, info) => {
