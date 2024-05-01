@@ -144,6 +144,86 @@ const authController = {
 			res.status(500).json({ error: "Ошибка подтверждения" });
 		}
 	},
+	sendResetCode: async (req, res) => {
+		const { email } = req.body;
+
+		const user = await db.query(`SELECT * FROM "user" WHERE email = $1`, [
+			email,
+		]);
+
+		if (!user.rows.length) {
+			return res.status(400).json({ message: "Пользователь не найден" });
+		}
+
+		const [{ confirm_token }] = user.rows;
+
+		const confirmSlicedToken = confirm_token.slice(0, -2) + "rp";
+
+		const mailBody = `
+				<div>
+					<h1 style='color: #6f4ff2'>WEBI Marketplace</h1>
+					<h2>
+						Ваш <i style='color: #6f4ff2'>код</i> для восстановления пароля:</h2>
+					<br/>
+					<h3>
+						<b style='color: #6f4ff2' class='token'>${confirmSlicedToken}</b>
+					</h3>
+				</div>
+			`;
+
+		const mailOptions = {
+			from: "Webi",
+			to: email,
+			html: mailBody,
+			subject: "Восстановление пароля",
+		};
+
+		transporter.sendMail(mailOptions, (error, info) => {
+			if (error) {
+				console.error("Ошибка отправки электронной почты:", error);
+				res.status(500).json({
+					error: "Ошибка отправки электронной почты",
+				});
+			} else {
+				res.json({
+					message:
+						"Код для восстановление пароля отправлен на вашу почту",
+				});
+			}
+		});
+
+		res.json({ message: "Код подтверждения отправлен на почту" });
+	},
+	resetPassword: async (req, res) => {
+		try {
+			const { email, password, confirmToken } = req.body;
+
+			const user = await db.query(
+				`SELECT * FROM "user" WHERE email = $1`,
+				[email]
+			);
+
+			if (!user.rows.length) {
+				return res
+					.status(400)
+					.json({ message: "Пользователь не найден" });
+			}
+
+			const [{ id }] = user.rows;
+			const token = generateToken({ email, id });
+			const hash = await bcrypt.hash(password, 10);
+
+			await db.query(
+				`UPDATE "user" SET password = $1 WHERE email = $2 AND confirm_token = $3 RETURNING email`,
+				[hash, email, confirmToken.slice(0, -2) + "rp"]
+			);
+
+			res.json({ token, message: "Пароль успешно изменен" });
+		} catch (error) {
+			console.error("Ошибка регистрации:", error);
+			res.status(500).json({ error: "Ошибка регистрации" });
+		}
+	},
 };
 
 module.exports = authController;
