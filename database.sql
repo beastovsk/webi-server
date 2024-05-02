@@ -8,25 +8,23 @@ CREATE TABLE "user" (
 
 CREATE TABLE "service" (
     id SERIAL PRIMARY KEY,
-    Service VARCHAR(255),
-    userId INTEGER REFERENCES "user"(id),
+    owner_id INTEGER REFERENCES "user"(id),
     title VARCHAR(255),
     price FLOAT,
     images TEXT[],
-    videoLink VARCHAR(255),
+    video_link VARCHAR(255),
     description TEXT,
-    previewLink VARCHAR(255),
+    preview_link VARCHAR(255),
     telegram VARCHAR(255),
-    isHighlighted BOOLEAN,
-    isPremium BOOLEAN,
-    isVisible BOOLEAN
+    is_highlighted BOOLEAN DEFAULT FALSE,
+    is_premium BOOLEAN DEFAULT FALSE,
+    is_visible BOOLEAN DEFAULT FALSE
 );
 
 CREATE TABLE "order" (
     id SERIAL PRIMARY KEY,
     service_id INTEGER REFERENCES "service"(id),
-    user_id INTEGER REFERENCES "user"(id),
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    seller_id INTEGER REFERENCES "user"(id),
+    buyer_id INTEGER REFERENCES "user"(id),
+    status TEXT
 );
