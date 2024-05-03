@@ -18,9 +18,7 @@ const orderController = {
                 return res.status(400).json({ message: "Невалидный сервис" });
             }
     
-            const { userId: sellerId } = service.rows[0]; // Получаем sellerId
-    
-            // Проверяем пользователя по токену
+            const { owner_id: sellerId } = service.rows[0]; 
             const user = await db.query(
                 `SELECT * FROM "user" WHERE email = $1`,
                 [email]
@@ -30,7 +28,10 @@ const orderController = {
                 return res.status(400).json({ message: "Невалидный токен" });
             }
     
-            // Создаем заказ
+            if (sellerId === id) {
+                return res.status(400).json({ message: "Вы не можете создать заказ на свой собственный сервис" });
+            }
+
             const newOrder = await db.query(
                 `INSERT INTO "order" (seller_id, service_id, buyer_id, status) 
                  VALUES ($1, $2, $3, 'await_payment') RETURNING id`,
@@ -46,19 +47,21 @@ const orderController = {
     closeOrder: async (req, res) => {
         try {
             const { orderId } = req.body;
-            const customerId = req.user.id;
+            const [_, token] = await req.headers.authorization.split(" ");
+			const { email, id } = await decodeToken({ token });
+			const user = await db.query(
+				`SELECT * FROM "user" WHERE email = $1`,
+				[email]
+			);
+            
+			if (!user.rows.length) {
+				return res.status(400).json({ message: "Невалидный токен" });
+			}
 
-            // Проверяем, существует ли заказ
-            const orderExists = await db.query(
-                `SELECT * FROM "order" WHERE id = $1 AND customerId = $2`,
-                [orderId, customerId]
-            );
-
-            if (!orderExists.rows.length) {
-                return res.status(400).json({ message: "Данный заказ не существует или не принадлежит вам" });
-            }
-
-            // Закрываем заказ
+            const order = await db.query(
+                'SELECT * FROM "order" WHERE id = $1',
+                [orderId]
+            )
             await db.query(
                 `UPDATE "order" SET status = 'cancel' WHERE id = $1`,
                 [orderId]
@@ -74,7 +77,6 @@ const orderController = {
     getOrderById: async (req, res) => {
         try {
             const { orderId } = req.query;
-
             const order = await db.query(
                 `SELECT * FROM "order" WHERE id = $1`,
                 [orderId]
@@ -94,6 +96,8 @@ const orderController = {
     getOrders: async (req, res) => {
         try {
             const customerId = req.user.id;
+            const [_, token] = await req.headers.authorization.split(" ");
+            const { email, id } = await decodeToken({ token });
 
             const orders = await db.query(
                 `SELECT * FROM "order" WHERE customerId = $1`,
