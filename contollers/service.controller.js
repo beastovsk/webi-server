@@ -12,9 +12,6 @@ const serviceController = {
 				description,
 				previewLink,
 				telegram,
-				isHighlighted = false,
-				isPremium = false,
-				isVisible = true,
 			} = req.body;
 			const [_, token] = await req.headers.authorization.split(" ");
 			const { email, id } = await decodeToken({ token });
@@ -28,7 +25,7 @@ const serviceController = {
 			}
 
 			const newService = await db.query(
-				`INSERT INTO "service" (userId, title, price, images, videoLink, description, previewLink, telegram, isHighlighted, isPremium, isVisible) 
+				`INSERT INTO "service" (owner_id, title, price, images, video_link, description, preview_link, telegram, is_highlighted, is_premium, is_visible) 
 				 VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) RETURNING title`,
 				[
 					id,
@@ -39,9 +36,9 @@ const serviceController = {
 					description,
 					previewLink,
 					telegram,
-					isHighlighted,
-					isPremium,
-					isVisible,
+					false,
+					false,
+					false,
 				]
 			);
 
@@ -50,6 +47,7 @@ const serviceController = {
 				service: newService.rows[0].title,
 			});
 		} catch (error) {
+			console.log(error);
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
@@ -92,9 +90,6 @@ const serviceController = {
 	updateService: async (req, res) => {
 		try {
 			const {
-				serviceId,
-				userId,
-				Service,
 				title,
 				price,
 				images,
@@ -120,12 +115,10 @@ const serviceController = {
 
 			const updatedService = await db.query(
 				`UPDATE "service"
-				 SET userId = $2, Service = $3, title = $4, price = $5, images = $6, videoLink = $7, description = $8, previewLink = $9, telegram = $10, isHighlighted = $11, isPremium = $12, isVisible = $13
-				 WHERE id = $1 RETURNING title`,
+				 SET title = $2, price = $3, images = $4, video_link = $5, description = $6, preview_link = $7, telegram = $8, is_highlighted = $9, is_premium = $10, isVisible = $11
+				 WHERE owner_id = $1 RETURNING title`,
 				[
-					serviceId,
 					id,
-					Service,
 					title,
 					price,
 					images,
@@ -156,7 +149,7 @@ const serviceController = {
 
 	getServiceById: async (req, res) => {
 		try {
-			const { serviceId } = req.body;
+			const { serviceId } = req.query;
 
 			const service = await db.query(
 				`SELECT * FROM "service" WHERE id = $1`,
@@ -169,7 +162,7 @@ const serviceController = {
 					.json({ message: "Данный сервис не существует" });
 			}
 
-			res.json(service.rows[0]);
+			res.json({ service: service.rows[0] });
 		} catch (error) {
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
@@ -178,8 +171,6 @@ const serviceController = {
 	getServices: async (req, res) => {
 		try {
 			const { name, priceFrom, priceTo } = req.query;
-
-			console.log(name, priceFrom, priceTo);
 
 			let query = `SELECT * FROM "service" WHERE 1 = 1`;
 
@@ -194,11 +185,9 @@ const serviceController = {
 				query += ` AND "price" <= ${priceTo}`;
 			}
 
-			console.log("Generated query:", query); // Логирование сформированного SQL-запроса
-
 			const services = await db.query(query);
 
-			res.json(services.rows);
+			res.json({ services: services.rows });
 		} catch (error) {
 			console.error("Error:", error); // Логирование ошибки, если возникла
 			res.status(500).json({ error: "Ошибка сервера" });
