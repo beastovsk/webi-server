@@ -8,7 +8,6 @@ CREATE TABLE "user" (
 
 CREATE TABLE "service" (
     id SERIAL PRIMARY KEY,
-    Service VARCHAR(255),
     userId INTEGER REFERENCES "user"(id),
     title VARCHAR(255),
     price FLOAT,
@@ -24,9 +23,9 @@ CREATE TABLE "service" (
 
 CREATE TABLE "order" (
     id SERIAL PRIMARY KEY,
-    service_id INTEGER REFERENCES "service"(id),
-    user_id INTEGER REFERENCES "user"(id),
-    name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) NOT NULL,
-    email VARCHAR(255) NOT NULL,
+    sellerId INTEGER REFERENCES "user"(id),
+    serviceId INTEGER REFERENCES "service"(id),
+    customerId INTEGER REFERENCES "user"(id)
+    status VARCHAR(255),
 );
+   

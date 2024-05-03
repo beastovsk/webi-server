@@ -119,10 +119,7 @@ const serviceController = {
 
 	getServices: async (req, res) => {
         try {
-            const { name, priceFrom, priceTo } = req.query;
-          
-            console.log(name, priceFrom, priceTo); 
-    
+            const { name, priceFrom, priceTo } = req.query
             let query = `SELECT * FROM "service" WHERE 1 = 1`;
     
             if (name) {
