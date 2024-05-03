@@ -22,5 +22,4 @@ router.post("/order/createOrder", orderController.createOrder);
 router.post("/order/closeOrder", orderController.closeOrder);
 router.get("/order/getOrderById", orderController.getOrderById);
 router.get("/order/getOrders", orderController.getOrders);
-
 module.exports = router;
