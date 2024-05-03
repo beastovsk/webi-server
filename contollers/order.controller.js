@@ -104,13 +104,14 @@ const orderController = {
 
 			const [{ buyer_id, seller_id }] = order.rows;
 
-			if (id !== buyer_id || id !== seller_id) {
-				return res
-					.status(400)
-					.json({ message: "Нет прав на получение заказа" });
-			}
+            if (buyer_id === id || seller_id === id) {
+                res.json({ order: order.rows[0] });
+            }
 
-			res.json({ order: order.rows[0] });
+            return res
+				.status(400)
+					.json({ message: "Нет прав на получение заказа" });
+
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
