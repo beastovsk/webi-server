@@ -28,3 +28,12 @@ CREATE TABLE "order" (
     buyer_id INTEGER REFERENCES "user"(id),
     status TEXT
 );
+
+CREATE TABLE "order" (
+    id SERIAL PRIMARY KEY,
+    sellerId INTEGER REFERENCES "user"(id),
+    serviceId INTEGER REFERENCES "service"(id),
+    customerId INTEGER REFERENCES "user"(id)
+    status VARCHAR(255),
+);
+   

@@ -3,6 +3,7 @@ const router = express.Router();
 const authController = require("../contollers/auth.controller");
 const userController = require("../contollers/user.controller");
 const serviceController = require("../contollers/service.controller")
+const orderController = require("../contollers/order.controller")
 
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
@@ -17,5 +18,6 @@ router.post("/service/removeService", serviceController.removeService);
 router.post("/service/updateService", serviceController.updateService);
 router.get("/service/getServiceById", serviceController.getServiceById);
 router.get("/service/getServices", serviceController.getServices);
+router.post("/order/createOrder", orderController.createOrder)
 
 module.exports = router;
