@@ -175,7 +175,7 @@ const serviceController = {
 			let query = `SELECT * FROM "service" WHERE 1 = 1`;
 
 			if (name) {
-				query += ` AND "service" ILIKE '%${name}%'`;
+				query += ` AND "title" ILIKE '%${name}%'`;
 			}
 			if (priceFrom && priceTo) {
 				query += ` AND "price" BETWEEN ${priceFrom} AND ${priceTo}`;
@@ -189,7 +189,7 @@ const serviceController = {
 
 			res.json({ services: services.rows });
 		} catch (error) {
-			console.error("Error:", error); // Логирование ошибки, если возникла
+			console.error("Error:", error); 
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
