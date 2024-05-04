@@ -224,6 +224,49 @@ const authController = {
 			res.status(500).json({ error: "Ошибка регистрации" });
 		}
 	},
+	supportRequest: async (req, res) => {
+		try {
+			const { email, body, name } = req.body;
+			const mailBody = `
+			<div>
+				<h1 style='color: #6f4ff2'>WEBI Marketplace</h1>
+				<h2>
+					Ваш <i style='color: #6f4ff2'>код</i> для восстановления пароля:</h2>
+				<br/>
+				<h3>
+					<b style='color: #6f4ff2' class='token'>${confirmSlicedToken}</b>
+				</h3>
+			</div>
+		`;
+
+	const mailOptions = {
+		from: "Webi",
+		to: email,
+		html: mailBody,
+		subject: "Восстановление пароля",
+	};
+
+	transporter.sendMail(mailOptions, (error, info) => {
+		if (error) {
+			console.error("Ошибка отправки электронной почты:", error);
+			res.status(500).json({
+				error: "Ошибка отправки электронной почты",
+			});
+		} else {
+			res.json({
+				message:
+					"Код для восстановление пароля отправлен на вашу почту",
+			});
+		}
+	});
+			
+
+			res.json({ token, message: "Пароль успешно изменен" });
+		} catch (error) {
+			console.error("Ошибка регистрации:", error);
+			res.status(500).json({ error: "Ошибка регистрации" });
+		}
+	},
 };
 
 module.exports = authController;
