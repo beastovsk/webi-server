@@ -20,7 +20,8 @@ const userController = {
 					.json({ message: "Пользователь не найден" });
 			}
 
-			const user = result.rows[0];
+			const { password, is_confirmed, confirm_token, ...user } =
+				result.rows[0];
 
 			res.json({ user });
 		} catch (error) {

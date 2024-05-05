@@ -29,8 +29,7 @@ const orderController = {
 				});
 			}
 			const newOrder = await db.query(
-				`INSERT INTO "order" (seller_id, service_id, buyer_id, status) 
-                 VALUES ($1, $2, $3, 'await_payment') RETURNING id`,
+				`INSERT INTO "order" (seller_id, service_id, buyer_id, status) VALUES ($1, $2, $3, 'await_payment') RETURNING id`,
 				[sellerId, serviceId, id]
 			);
 			res.json({
@@ -65,17 +64,20 @@ const orderController = {
 
 			const [{ buyer_id, seller_id }] = order.rows;
 
-			if (id !== buyer_id || id !== seller_id) {
-				return res
-					.status(400)
-					.json({ message: "Нет прав на закрытие заказа" });
+			if (id === buyer_id || id === seller_id) {
+				await db.query(
+					`UPDATE "order" SET status = 'cancel' WHERE id = $1`,
+					[orderId]
+				);
+				return res.json({ message: "Заказ отменен" });
 			}
 
-			await db.query(
-				`UPDATE "order" SET status = 'cancel' WHERE id = $1`,
-				[orderId]
-			);
-			res.json({ message: "Заказ отменен" });
+			res.status(400).json({
+				buyer_id,
+				id,
+				seller_id,
+				message: "Нет прав на закрытие заказа",
+			});
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
@@ -104,14 +106,13 @@ const orderController = {
 
 			const [{ buyer_id, seller_id }] = order.rows;
 
-            if (buyer_id === id || seller_id === id) {
-                res.json({ order: order.rows[0] });
-            }
+			if (buyer_id === id || seller_id === id) {
+				return res.json({ order: order.rows[0] });
+			}
 
-            return res
+			return res
 				.status(400)
-					.json({ message: "Нет прав на получение заказа" });
-
+				.json({ message: "Нет прав на получение заказа" });
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });

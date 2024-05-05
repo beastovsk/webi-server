@@ -230,38 +230,35 @@ const authController = {
 			const mailBody = `
 			<div>
 				<h1 style='color: #6f4ff2'>WEBI Marketplace</h1>
-				<h2>
-					Ваш <i style='color: #6f4ff2'>код</i> для восстановления пароля:</h2>
-				<br/>
-				<h3>
-					<b style='color: #6f4ff2' class='token'>${confirmSlicedToken}</b>
-				</h3>
+		
+				<h2>Name: <span style='color: #6f4ff2'>${name}</span></h2>
+				<h2>Email: <span style='color: #6f4ff2'>${email}</span></h2>
+				<h2>Body: <span style='color: #6f4ff2'>${body}</span></h2>
 			</div>
 		`;
 
-	const mailOptions = {
-		from: "Webi",
-		to: email,
-		html: mailBody,
-		subject: "Восстановление пароля",
-	};
+			const mailOptions = {
+				from: "Webi",
+				to: "coctencoflez@gmail.com",
+				html: mailBody,
+				subject: "Обращение в поддержку",
+			};
 
-	transporter.sendMail(mailOptions, (error, info) => {
-		if (error) {
-			console.error("Ошибка отправки электронной почты:", error);
-			res.status(500).json({
-				error: "Ошибка отправки электронной почты",
+			transporter.sendMail(mailOptions, (error, info) => {
+				if (error) {
+					console.error("Ошибка отправки электронной почты:", error);
+					res.status(500).json({
+						error: "Ошибка отправки электронной почты",
+					});
+				} else {
+					res.json({
+						message:
+							"Код для восстановление пароля отправлен на вашу почту",
+					});
+				}
 			});
-		} else {
-			res.json({
-				message:
-					"Код для восстановление пароля отправлен на вашу почту",
-			});
-		}
-	});
-			
 
-			res.json({ token, message: "Пароль успешно изменен" });
+			res.json({ message: "Обращение успешно отправлено" });
 		} catch (error) {
 			console.error("Ошибка регистрации:", error);
 			res.status(500).json({ error: "Ошибка регистрации" });
