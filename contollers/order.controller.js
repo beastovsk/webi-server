@@ -82,6 +82,7 @@ const orderController = {
 				`UPDATE "order" SET status = $1, repository_link = $2`,
 				[status, repository_link]
 			);
+			global.io.emit("update_order", { orderId, status });
 			res.json({
 				message: "Отправлено",
 			});
@@ -114,6 +115,8 @@ const orderController = {
 			const [{ buyer_id, seller_id }] = order.rows;
 
 			if (id === buyer_id || id === seller_id) {
+				global.io.emit("update_order", { orderId, status: "cancel" });
+
 				await db.query(
 					`UPDATE "order" SET status = 'cancel' WHERE id = $1`,
 					[orderId]
@@ -161,8 +164,7 @@ const orderController = {
 
 			return res
 				.status(400)
-					.json({ message: "Нет прав на получение заказа" });
-
+				.json({ message: "Нет прав на получение заказа" });
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
@@ -189,7 +191,7 @@ const orderController = {
 				return res.json({ orders: [] });
 			}
 
-			res.json({ orders: orders.rows });
+			res.json({ orders: orders.rows.reverse() });
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
