@@ -31,9 +31,10 @@ CREATE TABLE "order" (
 
 CREATE TABLE "order" (
     id SERIAL PRIMARY KEY,
-    sellerId INTEGER REFERENCES "user"(id),
-    serviceId INTEGER REFERENCES "service"(id),
-    customerId INTEGER REFERENCES "user"(id)
+    seller_id INTEGER REFERENCES "user"(id),
+    service_id INTEGER REFERENCES "service"(id),
+    buyer_id INTEGER REFERENCES "user"(id)
     status VARCHAR(255),
+    repository_link TEXT
 );
    
