@@ -224,6 +224,46 @@ const authController = {
 			res.status(500).json({ error: "Ошибка регистрации" });
 		}
 	},
+	supportRequest: async (req, res) => {
+		try {
+			const { email, body, name } = req.body;
+			const mailBody = `
+			<div>
+				<h1 style='color: #6f4ff2'>WEBI Marketplace</h1>
+		
+				<h2>Name: <span style='color: #6f4ff2'>${name}</span></h2>
+				<h2>Email: <span style='color: #6f4ff2'>${email}</span></h2>
+				<h2>Body: <span style='color: #6f4ff2'>${body}</span></h2>
+			</div>
+		`;
+
+			const mailOptions = {
+				from: "Webi",
+				to: "coctencoflez@gmail.com",
+				html: mailBody,
+				subject: "Обращение в поддержку",
+			};
+
+			transporter.sendMail(mailOptions, (error, info) => {
+				if (error) {
+					console.error("Ошибка отправки электронной почты:", error);
+					res.status(500).json({
+						error: "Ошибка отправки электронной почты",
+					});
+				} else {
+					res.json({
+						message:
+							"Код для восстановление пароля отправлен на вашу почту",
+					});
+				}
+			});
+
+			res.json({ message: "Обращение успешно отправлено" });
+		} catch (error) {
+			console.error("Ошибка регистрации:", error);
+			res.status(500).json({ error: "Ошибка регистрации" });
+		}
+	},
 };
 
 module.exports = authController;

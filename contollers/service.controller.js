@@ -115,7 +115,7 @@ const serviceController = {
 
 			const updatedService = await db.query(
 				`UPDATE "service"
-				 SET title = $2, price = $3, images = $4, video_link = $5, description = $6, preview_link = $7, telegram = $8, is_highlighted = $9, is_premium = $10, isVisible = $11
+				 SET title = $2, price = $3, images = $4, video_link = $5, description = $6, preview_link = $7, telegram = $8
 				 WHERE owner_id = $1 RETURNING title`,
 				[
 					id,
@@ -126,9 +126,6 @@ const serviceController = {
 					description,
 					previewLink,
 					telegram,
-					isHighlighted,
-					isPremium,
-					isVisible,
 				]
 			);
 
@@ -175,7 +172,7 @@ const serviceController = {
 			let query = `SELECT * FROM "service" WHERE 1 = 1`;
 
 			if (name) {
-				query += ` AND "service" ILIKE '%${name}%'`;
+				query += ` AND "title" ILIKE '%${name}%'`;
 			}
 			if (priceFrom && priceTo) {
 				query += ` AND "price" BETWEEN ${priceFrom} AND ${priceTo}`;
@@ -189,7 +186,33 @@ const serviceController = {
 
 			res.json({ services: services.rows });
 		} catch (error) {
-			console.error("Error:", error); // Логирование ошибки, если возникла
+			console.error("Error:", error);
+			res.status(500).json({ error: "Ошибка сервера" });
+		}
+	},
+
+	getPersonalServices: async (req, res) => {
+		try {
+			const [_, token] = req.headers.authorization.split(" ");
+			const { email, id } = decodeToken({ token });
+
+			const user = await db.query(
+				`SELECT * FROM "user" WHERE email = $1`,
+				[email]
+			);
+
+			if (!user.rows.length) {
+				return res.status(400).json({ message: "Невалидный токен" });
+			}
+
+			const services = await db.query(
+				`SELECT * FROM "service" WHERE owner_id = $1`,
+				[id]
+			);
+
+			res.status(200).json({ services: services.rows });
+		} catch (error) {
+			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
