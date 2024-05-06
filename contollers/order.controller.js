@@ -1,5 +1,6 @@
 const db = require("../database");
 const { decodeToken } = require("../utils");
+
 const orderController = {
 	createOrder: async (req, res) => {
 		try {
@@ -29,10 +30,14 @@ const orderController = {
 				});
 			}
 			const newOrder = await db.query(
-				`INSERT INTO "order" (seller_id, service_id, buyer_id, status) 
-                 VALUES ($1, $2, $3, 'await_payment') RETURNING id`,
+				`INSERT INTO "order" (seller_id, service_id, buyer_id, status) VALUES ($1, $2, $3, 'await_payment') RETURNING id`,
 				[sellerId, serviceId, id]
 			);
+			global.io.emit("create_order", {
+				orderId: newOrder.rows[0].id,
+				sellerId,
+			});
+
 			res.json({
 				message: "Заказ успешно создан",
 				orderId: newOrder.rows[0].id,
@@ -104,14 +109,13 @@ const orderController = {
 
 			const [{ buyer_id, seller_id }] = order.rows;
 
-            if (buyer_id === id || seller_id === id) {
-                res.json({ order: order.rows[0] });
-            }
+			if (buyer_id === id || seller_id === id) {
+				return res.json({ order: order.rows[0] });
+			}
 
-            return res
+			return res
 				.status(400)
-					.json({ message: "Нет прав на получение заказа" });
-
+				.json({ message: "Нет прав на получение заказа" });
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });

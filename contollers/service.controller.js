@@ -162,7 +162,7 @@ const serviceController = {
 					.json({ message: "Данный сервис не существует" });
 			}
 
-			res.json({ service: service.rows[0] });
+			return res.json({ service: service.rows[0] });
 		} catch (error) {
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
@@ -193,6 +193,7 @@ const serviceController = {
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
+	getPersonalServices: async (req, res) => {},
 };
 
 module.exports = serviceController;
