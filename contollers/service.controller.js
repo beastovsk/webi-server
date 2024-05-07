@@ -216,7 +216,6 @@ const serviceController = {
 			res.status(500).json({ error: "Ошибка сервера" });
 		}
 	},
-	getPersonalServices: async (req, res) => {},
 };
 
 module.exports = serviceController;

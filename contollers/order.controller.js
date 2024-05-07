@@ -191,7 +191,7 @@ const orderController = {
 				return res.json({ orders: [] });
 			}
 
-			res.json({ orders: orders.rows.reverse() });
+			res.json({ orders: orders.rows });
 		} catch (error) {
 			console.error("Error:", error);
 			res.status(500).json({ error: "Ошибка сервера" });
@@ -199,7 +199,7 @@ const orderController = {
 	},
 	resendOrderDetails: async (req, res) => {
 		try {
-			const { orderId } = req.body;
+			const { orderId, repository_link } = req.body;
 			const [_, token] = await req.headers.authorization.split(" ");
 			const { email, id } = await decodeToken({ token });
 			const order = await db.query(
@@ -212,7 +212,7 @@ const orderController = {
 					.status(400)
 					.json({ message: "Такого ордера не существует" });
 			}
-			const [{ buyer_id, repository_link }] = order.rows;
+			const [{ buyer_id }] = order.rows;
 			const user = await db.query(
 				`SELECT * FROM "user" WHERE email = $1`,
 				[email]
