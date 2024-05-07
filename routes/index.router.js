@@ -4,7 +4,7 @@ const authController = require("../contollers/auth.controller");
 const userController = require("../contollers/user.controller");
 const serviceController = require("../contollers/service.controller");
 const orderController = require("../contollers/order.controller");
-
+const agencyController = require("../contollers/agency.controller");
 
 router.post("/auth/login", authController.login);
 router.post("/auth/register", authController.register);
@@ -32,4 +32,6 @@ router.get("/order/getOrderById", (req, res) =>
 	orderController.getOrderById(req, res, io)
 );
 router.get("/order/getOrders", orderController.getOrders);
+router.post("/agency/sendContact", agencyController.sendContact);
+
 module.exports = router;
