@@ -10,7 +10,11 @@ const { PORT } = process.env;
 const { createServer } = require("node:http");
 
 const corsOptions = {
-	origin: ["http://localhost:3000", "http://127.0.0.1:3000"],
+	origin: [
+		"http://localhost:3000",
+		"http://127.0.0.1:3000",
+		"webi-agency.ru",
+	],
 	credentials: true,
 	methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
 };
@@ -25,8 +29,12 @@ app.use(express.static(path.join(process.cwd(), "public")));
 app.use("/api", indexRouter);
 const io = new Server(server, {
 	cors: {
-		origin: "http://localhost:3000",
-		methods: ["GET", "POST"],
+		origin: [
+			"http://localhost:3000",
+			"http://127.0.0.1:3000",
+			"webi-agency.ru",
+		],
+		methods: ["GET", "POST", "DELETE", "PATCH", "PUT"],
 	},
 });
 global.io = io; //added
