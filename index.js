@@ -43,10 +43,7 @@ const io = new Server(server, {
 global.io = io; //added
 
 io.on("connection", (socket) => {
-	console.log("a user connected");
-	socket.on("get_notifications", (data) => {
-		console.log(data);
-	});
+	console.log("socket started");
 });
 
 server.listen(PORT, () =>

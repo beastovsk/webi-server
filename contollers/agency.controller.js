@@ -3,7 +3,7 @@ const nodemailer = require("nodemailer");
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
-		user: "coctencoflez@gmail.com",
+		user: "webisupagency@gmail.com",
 		pass: "izjn njvi cxap muvc",
 	},
 });
@@ -28,7 +28,7 @@ const agencyController = {
 
 			const mailOptions = {
 				from: "Webi",
-				to: "lewebe9888@deligy.com",
+				to: "webisupagency@gmail.com",
 				html: mailBody,
 				subject: "Новая заявка",
 			};

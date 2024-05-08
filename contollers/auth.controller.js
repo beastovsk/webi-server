@@ -7,7 +7,7 @@ const { v4 } = require("uuid");
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
-		user: "coctencoflez@gmail.com",
+		user: "webisupagency@gmail.com",
 		pass: "izjn njvi cxap muvc",
 	},
 });
@@ -239,7 +239,7 @@ const authController = {
 
 			const mailOptions = {
 				from: "Webi",
-				to: "coctencoflez@gmail.com",
+				to: "webisupagency@gmail.com",
 				html: mailBody,
 				subject: "Обращение в поддержку",
 			};

@@ -4,7 +4,7 @@ const { decodeToken } = require("../utils");
 const transporter = nodemailer.createTransport({
 	service: "gmail",
 	auth: {
-		user: "coctencoflez@gmail.com",
+		user: "webisupagency@gmail.com",
 		pass: "izjn njvi cxap muvc",
 	},
 });
